@@ -547,7 +547,7 @@ def titleScreen():
         thumby.display.fill(0)
 
         thumby.display.drawText("BLACKJACK", 9, 0, 1)
-        thumby.display.drawText("Best:"+str(highScore), 0, 32, 1)
+        thumby.display.drawText("HI:"+str(highScore), 0, 32, 1)
 
         # card visual (unchanged)
         thumby.display.drawRectangle(28, 11, 14, 17, 1)
