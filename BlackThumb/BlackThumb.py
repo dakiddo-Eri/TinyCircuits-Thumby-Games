@@ -293,10 +293,16 @@ def resultScreen(msg, win, dealer_total, player_total):
         debtRounds += 1
     else:
         debtRounds = 0
-    
+        
     if debt > 0 and debtRounds >= DEBT_LIMIT:
-        gameOver = True
-        return
+        if money >= debt:
+            money -= debt
+            debt = 0
+            debtRounds = 0
+            gameOver = False
+        else:
+            gameOver = True
+
 
     if money > highScore:
         highScore = money
@@ -346,6 +352,18 @@ def resultScreen(msg, win, dealer_total, player_total):
         timer += 1
 
         if pressA():
+            if gameOver:
+                shutdownTune()
+                while True:
+                    thumby.display.fill(0)
+                    thumby.display.drawText("LONESHARK", shake(), 5, 1)
+                    thumby.display.drawText("GOT YOU!", shake(), 15, 1)
+                    thumby.display.drawText("A: Quit", 0, 30, 1)
+                    thumby.display.update()
+        
+                    if pressA():
+                        import sys
+                        sys.exit()
             return
 
 # ---------------- TIPS SCREEN ----------------
@@ -358,30 +376,34 @@ def tipsScreen():
         drawBattery()
 
         if page == 0:
-            thumby.display.drawText("TIPS 1/3", 0, 0, 1)
+            thumby.display.drawText("TIPS 1/4", 0, 0, 1)
             thumby.display.drawText("A: Hit", 0, 9, 1)
             thumby.display.drawText("B: Stand", 0, 17, 1)
             thumby.display.drawText("U: Dealer", 0, 25, 1)
             thumby.display.drawText("D: Pay Debts", 0, 33, 1)
         elif page == 1:
-            thumby.display.drawText("TIPS 2/3", 0, 0, 1)
+            thumby.display.drawText("TIPS 2/4", 0, 0, 1)
             thumby.display.drawText("D: Double or", 0, 9, 1)
             thumby.display.drawText("   Nothing", 0, 17, 1)
             thumby.display.drawText("   At start", 0, 25, 1)
             thumby.display.drawText("   of hand", 0, 33, 1)
-        else:
-            thumby.display.drawText("TIPS 3/3", 0, 0, 1)
+        elif page == 2:
+            thumby.display.drawText("TIPS 3/4", 0, 0, 1)
             thumby.display.drawText("Take Loan on", 0, 12, 1)
             thumby.display.drawText("HIGHSCORE pg", 0, 22, 1)
             thumby.display.drawText("Auth Dylan R", 0, 33, 1)
-
+        else:
+            thumby.display.drawText("TIPS 4/4", 0, 0, 1)
+            thumby.display.drawText("You have 10", 0, 12, 1)
+            thumby.display.drawText("hands to pay", 0, 22, 1)
+            thumby.display.drawText("your debt!", 0, 33, 1)
         thumby.display.update()
 
         if pressR():
-            page = (page + 1) % 3
+            page = (page + 1) % 4
                 
         if pressL():
-            page = (page - 1) % 3
+            page = (page - 1) % 4
 
         if pressB():
             return
@@ -448,23 +470,36 @@ def betScreen():
     blink = 0
     global bet, money, debt, debtRounds, loanCount
 
-    options = ["NO", 10, 20, 30, 40, 50, "ALL!"]
+    options = ["NO", 5, 10, 20, 30, 40, 50, "ALL!"]
     i = 0
 
     while True:
         thumby.display.fill(0)
 
-        thumby.display.drawText("< BET >", 0, 0, 1)
-        thumby.display.drawText("Debt:"+str(debt), 0, 40, 1)
-        thumby.display.drawText("D:"+str(debt), 40, 32, 1)
+        thumby.display.drawText("BET", 7, 0, 1)
+        thumby.display.drawText("<", 0, 0, 1)
+        thumby.display.drawText(">", 26, 0, 1)
         thumby.display.drawText(formatBet(options[i]), 26, 16, 1)
         if blink < 80:
             thumby.display.drawText("^", 35, 26, 1)
 
         thumby.display.drawText("$"+str(money), 0, 32, 1)
         if debt > 0:
-            thumby.display.drawText("D:"+str(debt), 40, 32, 1)
-            thumby.display.drawText(str(DEBT_LIMIT - debtRounds), 60, 0, 1)
+            thumby.display.drawText("D:"+str(debt), 43, 0, 1)
+            remaining = DEBT_LIMIT - debtRounds
+            if remaining == 2:
+                x_off = random.randint(0, 1)
+                y_off = random.randint(0, 1)
+            
+            elif remaining == 1:
+                x_off = random.randint(-2, 2)
+                y_off = random.randint(-2, 2)
+            
+            else:
+                x_off = 0
+                y_off = 0
+            
+            thumby.display.drawText(str(remaining), 60 + x_off, 32 + y_off, 1)
 
         thumby.display.update()
         
@@ -498,18 +533,13 @@ def betScreen():
         if pressB():  # back
             titleScreen()
 # ---------------- TITLE ----------------
-loadHighScore()
-loadBestStreak()
-
 def titleScreen():
     global difficulty
 
     blink = 0
-    y = 12
 
-    options = [">+", ">++"]
+    # 0 = NORMAL (+), 1 = HARD (++)
     i = 0
-
     if difficulty == "HARD":
         i = 1
 
@@ -518,25 +548,35 @@ def titleScreen():
 
         thumby.display.drawText("BLACKJACK", 9, 0, 1)
         thumby.display.drawText("Best:"+str(highScore), 0, 32, 1)
-        thumby.display.drawRectangle(28, y-1, 14, 17, 1)
-        thumby.display.drawText("J", 32, y + 4, 1)
 
+        # card visual (unchanged)
+        thumby.display.drawRectangle(28, 11, 14, 17, 1)
+        thumby.display.drawText("J", 32, 15, 1)
+
+        # --- STACKED OPTIONS ---
+        y1 = 12   # "+"
+        y2 = 22   # "++"
+
+        thumby.display.drawText("+", 54, y1, 1)
+        thumby.display.drawText("++", 54, y2, 1)
+
+        # --- MOVING ARROW ---
         if blink < 80:
-            thumby.display.drawText("A", 67, 32, 1)
-
-        thumby.display.drawText(options[i], 52, 16, 1)
+            arrow_y = y1 if i == 0 else y2
+            thumby.display.drawText(">", 46, arrow_y, 1)
 
         thumby.display.update()
         blink = (blink + 1) % 100
 
-        # toggle difficulty
-        if pressL() or pressR():
+        # move selection
+        if pressU() or pressD():
             i = (i + 1) % 2
             difficulty = "HARD" if i == 1 else "NORMAL"
 
         if pressA():
             return
-
+        if pressB():
+            return
 # ---------------- MAIN ----------------
 loadHighScore()
 loadBestStreak()
@@ -590,7 +630,7 @@ while True:
                     thumby.display.fill(0)
             
                     thumby.display.drawText("DOUBLE!", 18, 0, 1)
-                    thumby.display.drawText("OR NOTHING", 7, 10, 1)
+                    thumby.display.drawText("OR NOTHING!", 4, 10, 1)
 
                     drawHand(player)
             
