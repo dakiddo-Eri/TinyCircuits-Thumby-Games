@@ -5,6 +5,11 @@ https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/
 https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/MidiPlayer/polysynth.py
 https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/MidiPlayer/midi.py
 
+NAME=JetpackFrog
+https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/JetpackFrog/JetpackFrog.py
+https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/JetpackFrog/emulator_video.webm
+https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/JetpackFrog/arcade_description.txt
+
 NAME=WORIDII
 https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/WORIDII/arcade_title_image.png
 https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/WORIDII/arcade_description.txt
